@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.pierwszatv" name="Pierwsza TV" version="1.0.0" provider-name="piotrekcrash">
+  <requires>
+    <import addon="xbmc.python" version="2.14.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="main.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.service" library="service.py" start="startup" />
+  <extension point="xbmc.addon.metadata">
+    <description>Plugin pozwalający na oglądanie kanałów telewizyjnych popularnego serwisu PierwszaTV</description>
+    <platform>all</platform>
+    <summary lang="en"></summary>
+  </extension>
+</addon>

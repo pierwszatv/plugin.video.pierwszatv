@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<category label="Server">
+		<setting id="server_enable" type="bool" default="true" label="Server Enable"/>
+		<setting id="server_port" type="text" default="8899" label="Server Port"/>
+		<setting id="server_service_type" type="enum" values="Telewizjada|PierwszaTV" label="Service" default="0"/>
+	</category>
+	<category label="Video Addon">
+		<setting id="pierwsza_tv_sort" type="enum" values="Default|Alphabetical" label="Sorting" default="0"/>
+	</category>
+	<category label="PierwszaTV">
+		<setting id="pierwsza_tv_user" type="text" default="" label="User"/>
+		<setting id="pierwsza_tv_pass" type="text" default="" label="Password"/>
+	</category>
+</settings>
