@@ -21,9 +21,6 @@ API = pierwszaTV.pierwszaTV()
 addon       = xbmcaddon.Addon()
 addonname   = addon.getAddonInfo('name')
 addondir    = xbmc.translatePath( addon.getAddonInfo('profile') )
-server_enable = addon.getSetting('server_enable');
-port = int(addon.getSetting('server_port'));
-
 
 class MyHandler(BaseHTTPRequestHandler):
 	def do_HEAD(self):
@@ -43,7 +40,7 @@ class MyHandler(BaseHTTPRequestHandler):
 			xbmcgui.Dialog().notification("TV Service", "HEAD Connection error, try again", xbmcgui.NOTIFICATION_ERROR );
 	def do_GET(self):
 		#host = self.headers.get('Host')
-		#try:
+		try:
 			if 'playlist' in self.path:
 				playlist = API.getChannelsM3U()
 				self.send_response(200)
@@ -70,9 +67,9 @@ class MyHandler(BaseHTTPRequestHandler):
 				self.finish()
 			else:
 				xbmcgui.Dialog().notification("TV Service", "Unsupported method called", xbmcgui.NOTIFICATION_ERROR );
-		#except Exception as e:
-		#	log.error('TV Service: ' + str(e))
-		#	xbmcgui.Dialog().notification("TV Service", "Connection error, try again", xbmcgui.NOTIFICATION_ERROR );
+		except Exception as e:
+			log.error('TV Service: ' + str(e))
+			xbmcgui.Dialog().notification("TV Service", "Connection error, try again", xbmcgui.NOTIFICATION_ERROR );
 
 class AsyncCall(object):
 	def __init__(self, fnc, callback = None):
@@ -115,14 +112,37 @@ def Async(fnc = None, callback = None):
 @Async
 def startServer():
 	global server;
+	server_enable = addon.getSetting('server_enable');
+	port = int(addon.getSetting('server_port'));
 	#xbmcgui.Dialog().notification("Example", str(port), xbmcgui.NOTIFICATION_ERROR );
+	if server_enable:
+		try:
+			server = SocketServer.TCPServer(('', port), MyHandler);
+			server.serve_forever();
+		except KeyboardInterrupt:
+			if server != None:
+				server.socket.close();
+
+def serverOnline():
+	port = addon.getSetting('server_port');
 	try:
-		server = SocketServer.TCPServer(('', port), MyHandler);
-		server.serve_forever();
-		
-	except KeyboardInterrupt:
-		if server != None:
-			server.socket.close();
+		url = urllib.urlopen('http://localhost:' + str(port) + '/online');
+		code = url.getcode();
+		if code == 200:
+			return True;
+	except Exception as e:
+		return False;
+	return False;
+
+
+def stopServer():
+	port = addon.getSetting('server_port');
+	try:
+		url = urllib.urlopen('http://localhost:' + str(port) + '/stop');
+		code = url.getcode();
+	except Exception as e:
+		return;
+	return;
 
 if __name__ == '__main__':
 	startServer();
