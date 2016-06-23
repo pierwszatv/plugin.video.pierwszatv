@@ -10,7 +10,7 @@
 		<setting id="pierwsza_tv_sort" type="enum" values="Default|Alphabetical" label="Sorting" default="0"/>
 	</category>
 	<category label="PierwszaTV">
-		<setting id="pierwsza_tv_user" type="text" default="" label="User"/>
+		<setting id="pierwsza_tv_user" type="text" default="" label="Email"/>
 		<setting id="pierwsza_tv_pass" type="text" default="" label="Password"/>
 	</category>
 </settings>

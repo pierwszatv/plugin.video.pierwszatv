@@ -55,10 +55,12 @@ class MyHandler(BaseHTTPRequestHandler):
 				channel = args['channel'][0]
 				service = args['service'][0]
 				channelUrl = API.getStreamUrl(channel)
-				self.send_response(301)
-				self.send_header('Location', channelUrl)
-				self.end_headers()
-				self.finish()
+				play_item = xbmcgui.ListItem(path=channelUrl)
+				xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
+				#self.send_response(301)
+				#self.send_header('Location', '')
+				#self.end_headers()
+				#self.finish()
 				return
 			elif 'epg' in self.path:
 				self.send_response(301)
