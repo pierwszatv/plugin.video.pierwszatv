@@ -9,6 +9,8 @@ import time
 import threading
 
 addon = xbmcaddon.Addon()
+user = addon.getSetting('pierwsza_tv_user');
+password = addon.getSetting('pierwsza_tv_pass');
 api_id = "W4ER"
 checksum = "a4d425e463160798c7aab988a67c1218"
 API = "http://pierwsza.tv/api/"
@@ -23,20 +25,13 @@ class pierwszaTV:
 	def __init__(self):
 		self.urlStream = "a"
 		pass
-	def checkAuth(self):
-		user = addon.getSetting('pierwsza_tv_user');
-		password = addon.getSetting('pierwsza_tv_pass');
-		#xbmcgui.Dialog().notification("PierwszaTV", "-" + user + "-" + password + "-", xbmcgui.NOTIFICATION_ERROR )
-		if user == "" or password == "":
-			xbmcgui.Dialog().notification("PierwszaTV", "Uzupełnij dane użytkownika w ustawieniach dodatku", xbmcgui.NOTIFICATION_ERROR )
+		
 	def getStreamUrl(self, channel):
-		time.sleep(5)
+		time.sleep(1)
 		return self.urlStream
 	def getChannel(self, channel):
 		try:
-			user = addon.getSetting('pierwsza_tv_user');
-			password = addon.getSetting('pierwsza_tv_pass');
-			params_stream_create = 'api_id=' + api_id + '&checksum=' + checksum + '&id=' + str(channel) + '&user=' + user + '&password=' + password
+			params_stream_create = 'api_id=' + api_id + '&checksum=' + checksum + '&id=' + channel + '&user=' + user + '&password=' + password
 			query_stream_create = {'url': API + 'stream/create?' + params_stream_create,'return_data': True, 'use_post': False}
 			data_stream_create = httpClient.getURLRequestData(query_stream_create)
 			log.error('PierwszaTV: data_stream_create' + str(data_stream_create))
@@ -53,9 +48,6 @@ class pierwszaTV:
 				#time.sleep(5)
 				threading.Thread(target=self.refreshToken, args=(streamId, serverId, token, tokenExpireIn,)).start()
 				return streamUrl
-			elif streamCreateStatus == 'error':
-				streamCreateMessage = jsonStreamCreate['message']
-				xbmcgui.Dialog().notification("PierwszaTV", streamCreateMessage, xbmcgui.NOTIFICATION_ERROR )
 			else:
 				xbmcgui.Dialog().notification("PierwszaTV", "Error creating channel stream", xbmcgui.NOTIFICATION_ERROR )
 		except Exception as e:
@@ -90,17 +82,16 @@ class pierwszaTV:
 		except Exception as e:
 			xbmcgui.Dialog().notification("PierwszaTV getChannelUrl:", str(e), xbmcgui.NOTIFICATION_ERROR );
 	def getChannelsM3U(self):
-		#try:
-		getChannelsReq = {'url': API + 'channels?api_id=' + api_id + '&checksum=' + checksum, 'return_data': True, 'use_post': False}
-		getChannelsResp = httpClient.getURLRequestData(getChannelsReq)
-		if getChannelsResp != None:
-			return self.createPlaylist(getChannelsResp)
-		#except Exception as e:
-		#	log.error('PierwszaTV: ' + str(e))
-		#	xbmcgui.Dialog().notification("PierwszaTV", str(e), xbmcgui.NOTIFICATION_ERROR );
-
+		try:
+			getChannelsReq = {'url': API + 'channels?api_id=' + api_id + '&checksum=' + checksum, 'return_data': True, 'use_post': False}
+			getChannelsResp = httpClient.getURLRequestData(getChannelsReq)
+			if getChannelsResp != None:
+				return self.createPlaylist(getChannelsResp)
+		except Exception as e:
+			log.error('PierwszaTV: ' + str(e))
+			xbmcgui.Dialog().notification("PierwszaTV", str(e), xbmcgui.NOTIFICATION_ERROR );
+		#return "M3U_Content"
 	def getChannels(self):
-		self.checkAuth()
 		try:
 			getChannelsReq = {'url': API + 'channels?api_id=' + api_id + '&checksum=' + checksum, 'return_data': True, 'use_post': False}
 			getChannelsResp = httpClient.getURLRequestData(getChannelsReq)
@@ -116,7 +107,7 @@ class pierwszaTV:
 		return playlistManager.getPlaylist(channels)
 
 	def getChannelList(self, channelsResp):
-		#log.error('PierwszaTV Channels: ' + str(channelsResp))
+		log.error('PierwszaTV Channels: ' + str(channelsResp))
 		jsonChannels = json.loads(channelsResp)
 		channels = []
 		for channel in jsonChannels['channels']:

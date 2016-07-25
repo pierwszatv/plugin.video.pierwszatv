@@ -11,16 +11,26 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from urlparse import urlparse, parse_qs
 import httpCommon
 import pLog
+import telewizjada
 import pierwszaTV
 
 log = pLog.pLog()
 
 httpClient = httpCommon.common()
-API = pierwszaTV.pierwszaTV()
+#telewizjadaAPI = telewizjada.telewizjada()
+pierwszaTVAPI = pierwszaTV.pierwszaTV()
 
 addon       = xbmcaddon.Addon()
 addonname   = addon.getAddonInfo('name')
 addondir    = xbmc.translatePath( addon.getAddonInfo('profile') )
+server_enable = addon.getSetting('server_enable');
+port = int(addon.getSetting('server_port'));
+serviceType = addon.getSetting('server_service_type');
+
+API = pierwszaTVAPI
+
+#xbmcgui.Dialog().notification("TV Service", serviceType, xbmcgui.NOTIFICATION_ERROR );
+server = None;
 
 class MyHandler(BaseHTTPRequestHandler):
 	def do_HEAD(self):
@@ -31,15 +41,16 @@ class MyHandler(BaseHTTPRequestHandler):
 				channel = args['channel'][0]
 				service = args['service'][0]
 				channelUrl = API.getChannel(channel)
-				self.send_response(301)
-				log.error('STREAM_URL: ' + channelUrl)
-				self.send_header('Location', channelUrl)
-				self.end_headers()
-				self.finish()
+				#self.send_response(301)
+				#log.error('STREAM_URL: ' + channelUrl)
+				#self.send_header('Location', channelUrl)
+				#self.end_headers()
+				#self.finish()
 		except Exception as e:
 			xbmcgui.Dialog().notification("TV Service", "HEAD Connection error, try again", xbmcgui.NOTIFICATION_ERROR );
 	def do_GET(self):
 		#host = self.headers.get('Host')
+
 		try:
 			if 'playlist' in self.path:
 				playlist = API.getChannelsM3U()
@@ -53,25 +64,24 @@ class MyHandler(BaseHTTPRequestHandler):
 			elif 'channel' in self.path:
 				args = parse_qs(urlparse(self.path).query)
 				channel = args['channel'][0]
-				service = args['service'][0]
+				#service = args['service'][0]
 				channelUrl = API.getStreamUrl(channel)
-				play_item = xbmcgui.ListItem(path=channelUrl)
-				xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
-				#self.send_response(301)
-				#self.send_header('Location', '')
-				#self.end_headers()
-				#self.finish()
-				return
+				self.send_response(301)
+				self.send_header('Location', channelUrl)
+				self.end_headers()
+				self.finish()
 			elif 'epg' in self.path:
 				self.send_response(301)
-				self.send_header('Location', 'http://epg.iptvlive.org')
+				self.send_header('Location', 'https://raw.githubusercontent.com/piotrekcrash/xmltvEpg/master/epg.xml')
 				self.end_headers()
 				self.finish()
 			else:
 				xbmcgui.Dialog().notification("TV Service", "Unsupported method called", xbmcgui.NOTIFICATION_ERROR );
 		except Exception as e:
-			log.error('TV Service: ' + str(e))
-			xbmcgui.Dialog().notification("TV Service", "Connection error, try again", xbmcgui.NOTIFICATION_ERROR );
+			reconnect()
+			retry_action()
+			#log.info('TV Service: ' + str(e))
+			xbmcgui.Dialog().notification("TV Service", str(e), xbmcgui.NOTIFICATION_ERROR );
 
 class AsyncCall(object):
 	def __init__(self, fnc, callback = None):
@@ -114,37 +124,14 @@ def Async(fnc = None, callback = None):
 @Async
 def startServer():
 	global server;
-	server_enable = addon.getSetting('server_enable');
-	port = int(addon.getSetting('server_port'));
 	#xbmcgui.Dialog().notification("Example", str(port), xbmcgui.NOTIFICATION_ERROR );
-	if server_enable:
-		try:
-			server = SocketServer.TCPServer(('', port), MyHandler);
-			server.serve_forever();
-		except KeyboardInterrupt:
-			if server != None:
-				server.socket.close();
-
-def serverOnline():
-	port = addon.getSetting('server_port');
 	try:
-		url = urllib.urlopen('http://localhost:' + str(port) + '/online');
-		code = url.getcode();
-		if code == 200:
-			return True;
-	except Exception as e:
-		return False;
-	return False;
-
-
-def stopServer():
-	port = addon.getSetting('server_port');
-	try:
-		url = urllib.urlopen('http://localhost:' + str(port) + '/stop');
-		code = url.getcode();
-	except Exception as e:
-		return;
-	return;
+		server = SocketServer.TCPServer(('', port), MyHandler);
+		server.serve_forever();
+		
+	except KeyboardInterrupt:
+		if server != None:
+			server.socket.close();
 
 if __name__ == '__main__':
 	startServer();
