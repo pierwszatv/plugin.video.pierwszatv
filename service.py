@@ -53,6 +53,7 @@ class MyHandler(BaseHTTPRequestHandler):
 
 		try:
 			if 'playlist' in self.path:
+				time.sleep(5)
 				playlist = API.getChannelsM3U()
 				self.send_response(200)
 				self.send_header('Content-type',    'application/x-mpegURL')

@@ -2,6 +2,7 @@
 import os, sys
 import playlist
 import xbmcgui, xbmc, xbmcaddon, xbmcplugin
+from datetime import datetime, timedelta
 import httpCommon
 import pLog
 import json
@@ -45,8 +46,12 @@ class pierwszaTV:
 				tokenExpireIn = jsonStreamCreate['tokenExpireIn']
 				streamUrl = self.getChannelUrl(serverId, streamId, token, tried)
 				self.urlStream = streamUrl
+				expire = int(tokenExpireIn * 0.75)
 				#time.sleep(5)
-				threading.Thread(target=self.refreshToken, args=(streamId, serverId, token, tokenExpireIn,)).start()
+				threading.Thread(target=self.tokenRefresh, args=(streamId, serverId, token, expire,)).start()
+				#threading.Thread(target=self.refreshToken, args=(streamId, serverId, token, tokenExpireIn,)).start()
+				#tokenThread.setDaemon(True)
+				#tokenThread.start()
 				return streamUrl
 			else:
 				xbmcgui.Dialog().notification("PierwszaTV", "Error creating channel stream", xbmcgui.NOTIFICATION_ERROR )
@@ -79,7 +84,7 @@ class pierwszaTV:
 					#log.error('PierwszaTV Stream: ' + streamURl)
 					return streamURl
 			else:
-				xbmcgui.Dialog().notification("PierwszaTV", "Error on channel status", xbmcgui.NOTIFICATION_ERROR );
+				xbmcgui.Dialog().notification("PierwszaTV", "Status: Error", xbmcgui.NOTIFICATION_ERROR );
 		except Exception as e:
 			xbmcgui.Dialog().notification("PierwszaTV getChannelUrl:", str(e), xbmcgui.NOTIFICATION_ERROR );
 	def getChannelsM3U(self):
@@ -131,9 +136,39 @@ class pierwszaTV:
 			if resfreshStatus == 'ok':
 				tokenExpireIn = jsonStreamRefresh['tokenExpireIn']
 				#xbmcgui.Dialog().notification("PierwszaTV", "OK: " + str(resfreshStatus) +  " " + str(expire), xbmcgui.NOTIFICATION_ERROR );
+				#threading.Thread(target=self.refreshToken, args=(streamId, serverId, token, tokenExpireIn,))
 				threading.Thread(target=self.refreshToken, args=(streamId, serverId, token, tokenExpireIn,)).start()
+				#tokenThread.setDaemon(True)
+				#tokenThread.start()
+			#self.kill()
 		except Exception as e:
 			log.error('PierwszaTV Token Refresh: ' + str(e))
 			xbmcgui.Dialog().notification("PierwszaTV Token Refresh:", str(e), xbmcgui.NOTIFICATION_ERROR );
 		#else:
 			#xbmcgui.Dialog().notification("PierwszaTV", "ERROR: " + str(resfreshStatus), xbmcgui.NOTIFICATION_ERROR );
+	def tokenRefresh(self, streamId, serverId, token, tokenExpireIn):
+		xbmcgui.Dialog().notification("PierwszaTV Token Refresh:", str(tokenExpireIn), xbmcgui.NOTIFICATION_ERROR );
+		active = True
+		delay = 0
+		now = datetime.now()
+		nextRefresh = now + timedelta(seconds=tokenExpireIn)
+		while active == True:
+			time.sleep(1)
+			now = datetime.now()
+			deltaSeconds = (nextRefresh - now).seconds
+			#xbmcgui.Dialog().notification("Delta Seconds: ", str(deltaSeconds), xbmcgui.NOTIFICATION_ERROR );
+			if deltaSeconds <= 0:
+				params_stream_refresh = 'api_id=' + api_id + '&checksum=' + checksum + '&streamId=' + streamId + '&serverId=' + str(serverId) + '&token=' + token
+				query_stream_refresh = {'url': API + 'stream/refresh?' + params_stream_refresh, 'return_data': True, 'use_post': False}
+				data_stream_refresh = httpClient.getURLRequestData(query_stream_refresh)
+				jsonStreamRefresh = json.loads(data_stream_refresh)
+				resfreshStatus = jsonStreamRefresh['status']
+				if resfreshStatus == 'ok':
+					tokenExpireIn = jsonStreamRefresh['tokenExpireIn']
+					#xbmcgui.Dialog().notification("PierwszaTV Token Refresh:", str(tokenExpireIn), xbmcgui.NOTIFICATION_ERROR );
+					expire = int(tokenExpireIn * 0.75)
+					nextRefresh = now + timedelta(seconds=expire)
+				else:
+					active = False
+				
+
