@@ -69,6 +69,7 @@ class pierwszaTV:
 				sourceError = jsonStreamStatus['sourceError']
 				if sourceError == True:
 					xbmcgui.Dialog().notification("PierwszaTV", "Przerwa techniczna, spróbuj później", xbmcgui.NOTIFICATION_ERROR );
+					return ''
 				if started == False:
 					time.sleep(5)
 					return self.getChannelUrl(serverId, streamId, token, tried)
