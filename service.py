@@ -11,13 +11,11 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from urlparse import urlparse, parse_qs
 import httpCommon
 import pLog
-import telewizjada
 import pierwszaTV
 
 log = pLog.pLog()
 
 httpClient = httpCommon.common()
-#telewizjadaAPI = telewizjada.telewizjada()
 pierwszaTVAPI = pierwszaTV.pierwszaTV()
 
 addon       = xbmcaddon.Addon()
@@ -39,7 +37,7 @@ class MyHandler(BaseHTTPRequestHandler):
 			if 'channel' in self.path:
 				args = parse_qs(urlparse(self.path).query)
 				channel = args['channel'][0]
-				service = args['service'][0]
+				#service = args['service'][0]
 				channelUrl = API.getChannel(channel)
 				#self.send_response(301)
 				#log.error('STREAM_URL: ' + channelUrl)

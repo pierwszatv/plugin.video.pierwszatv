@@ -147,7 +147,7 @@ class pierwszaTV:
 		#else:
 			#xbmcgui.Dialog().notification("PierwszaTV", "ERROR: " + str(resfreshStatus), xbmcgui.NOTIFICATION_ERROR );
 	def tokenRefresh(self, streamId, serverId, token, tokenExpireIn):
-		xbmcgui.Dialog().notification("PierwszaTV Token Refresh:", str(tokenExpireIn), xbmcgui.NOTIFICATION_ERROR );
+		#xbmcgui.Dialog().notification("PierwszaTV Token Refresh:", str(tokenExpireIn), xbmcgui.NOTIFICATION_ERROR );
 		active = True
 		delay = 0
 		now = datetime.now()
@@ -171,4 +171,3 @@ class pierwszaTV:
 				else:
 					active = False
 				
-
