@@ -26,7 +26,7 @@ class pierwszaTV:
 	def __init__(self):
 		self.urlStream = "a"
 		pass
-		
+
 	def getStreamUrl(self, channel):
 		time.sleep(1)
 		return self.urlStream
@@ -170,4 +170,3 @@ class pierwszaTV:
 					nextRefresh = now + timedelta(seconds=expire)
 				else:
 					active = False
-				

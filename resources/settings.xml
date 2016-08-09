@@ -2,9 +2,10 @@
 <settings>
 	<category label="Server">
 		<setting id="server_enable" type="bool" default="true" label="Server Enable"/>
-		<!-- <setting id="server_port" type="text" default="8899" label="Server Port"/> -->
 		<setting id="server_port" type="number" default="8899" label="Port" visible="eq(-1,true)"/>
-		<!-- <setting id="server_service_type" type="enum" values="Telewizjada|PierwszaTV" label="Service" default="0"/> -->
+		<setting type="sep"/>
+		<setting label="Start Server" type="action" visible="eq(-3,true)" action="XBMC.RunPlugin(plugin://plugin.video.pierwszatv/?action=startServer)"/>
+    <setting label="Stop Server" type="action" visible="eq(-4,true)" action="XBMC.RunPlugin(plugin://plugin.video.pierwszatv/?action=stopServer)"/>
 	</category>
 	<category label="Video Addon">
 		<setting id="pierwsza_tv_sort" type="enum" values="Default|Alphabetical" label="Sorting" default="0"/>

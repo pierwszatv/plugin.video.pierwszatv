@@ -4,18 +4,21 @@ import xbmcgui
 import xbmcaddon
 import xbmcplugin
 import pierwszaTV
+import time
+
+import service
 
 API = pierwszaTV.pierwszaTV()
 
 addon = xbmcaddon.Addon()
-sortType = addon.getSetting('pierwsza_tv_sort');
-
+addonname   = addon.getAddonInfo('name')
 # Get the plugin url in plugin:// notation.
 _url = sys.argv[0]
 # Get the plugin handle as an integer number.
 _handle = int(sys.argv[1])
 
 def getChannels():
+		sortType = addon.getSetting('pierwsza_tv_sort');
 		channels = API.getChannels()
 		listing = []
 		for channel in channels:
@@ -46,15 +49,38 @@ def router(paramstring):
 		params = dict(parse_qsl(paramstring))
 		# Check the parameters passed to the plugin
 		if params:
-				if params['action'] == 'listing':
-						# Display the list of videos in a provided category.
-						list_videos(params['category'])
-				elif params['action'] == 'play':
-						# Play a video from a provided URL.
-						play_video(params['video'])
+			if params['action'] == 'listing':
+				# Display the list of videos in a provided category.
+				list_videos(params['category'])
+			elif params['action'] == 'play':
+				# Play a video from a provided URL.
+				play_video(params['video'])
+			elif params['action'] == 'stopServer':
+				stopServer()
+			elif params['action'] == 'startServer':
+				startServer()
 		else:
-				getChannels()
+			getChannels()
 
+def startServer():
+	port = addon.getSetting('server_port');
+	if service.serverOnline():
+		xbmcgui.Dialog().notification(addonname, 'Server already started.\nPort: ' + str(port), xbmcgui.NOTIFICATION_INFO );
+	else:
+		service.startServer();
+		time.sleep(5);
+		if service.serverOnline():
+			xbmcgui.Dialog().notification(addonname, 'Server started.\nPort: ' + str(port), xbmcgui.NOTIFICATION_INFO );
+		else:
+			xbmcgui.Dialog().notification(addonname, 'Server not started. Wait one moment and try again. ', xbmcgui.NOTIFICATION_ERROR );
+
+def stopServer():
+	if service.serverOnline():
+		service.stopServer()
+		time.sleep(5);
+		xbmcgui.Dialog().notification(addonname, 'Server stopped.', xbmcgui.NOTIFICATION_INFO );
+	else:
+		xbmcgui.Dialog().notification(addonname, 'Server is already stopped.', xbmcgui.NOTIFICATION_INFO );
 
 if __name__ == '__main__':
 		router(sys.argv[2][1:])

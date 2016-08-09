@@ -9,6 +9,7 @@ import re
 import os, sys
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from urlparse import urlparse, parse_qs
+import urllib
 import httpCommon
 import pLog
 import pierwszaTV
@@ -22,7 +23,6 @@ addon       = xbmcaddon.Addon()
 addonname   = addon.getAddonInfo('name')
 addondir    = xbmc.translatePath( addon.getAddonInfo('profile') )
 server_enable = addon.getSetting('server_enable');
-port = int(addon.getSetting('server_port'));
 serviceType = addon.getSetting('server_service_type');
 
 API = pierwszaTVAPI
@@ -31,6 +31,7 @@ API = pierwszaTVAPI
 server = None;
 
 class MyHandler(BaseHTTPRequestHandler):
+	global server;
 	def do_HEAD(self):
 		#xbmcgui.Dialog().notification("TV Service", "HEAD", xbmcgui.NOTIFICATION_ERROR );
 		try:
@@ -74,6 +75,26 @@ class MyHandler(BaseHTTPRequestHandler):
 				self.send_header('Location', 'https://raw.githubusercontent.com/piotrekcrash/xmltvEpg/master/epg.xml')
 				self.end_headers()
 				self.finish()
+
+			elif 'stop' in self.path:
+				msg = 'Stopping ...'
+				self.send_response(200)
+				self.send_header('Content-type',	'text/html')
+				self.send_header('Connection',	'close')
+				self.send_header('Content-Length', len(msg))
+				self.end_headers()
+				self.wfile.write(msg.encode('utf-8'))
+				server.socket.close()
+
+			elif 'online' in self.path:
+				msg = 'Yes. I am.'
+				self.send_response(200)
+				self.send_header('Content-type',	'text/html')
+				self.send_header('Connection',	'close')
+				self.send_header('Content-Length', len(msg))
+				self.end_headers()
+				self.wfile.write(msg.encode('utf-8'))
+
 			else:
 				xbmcgui.Dialog().notification("TV Service", "Unsupported method called", xbmcgui.NOTIFICATION_ERROR );
 		except Exception as e:
@@ -86,7 +107,7 @@ class AsyncCall(object):
 	def __init__(self, fnc, callback = None):
 		self.Callable = fnc
 		self.Callback = callback
-		
+
 	def __call__(self, *args, **kwargs):
 		self.Thread = threading.Thread(target = self.run, name = self.Callable.__name__, args = args, kwargs = kwargs)
 		self.Thread.start()
@@ -98,7 +119,7 @@ class AsyncCall(object):
 			raise TimeoutError()
 		else:
 			return self.Result
-			
+
 	def run(self, *args, **kwargs):
 		self.Result = self.Callable(*args, **kwargs)
 		if self.Callback:
@@ -108,10 +129,10 @@ class AsyncMethod(object):
 	def __init__(self, fnc, callback=None):
 		self.Callable = fnc
 		self.Callback = callback
-		
+
 	def __call__(self, *args, **kwargs):
 		return AsyncCall(self.Callable, self.Callback)(*args, **kwargs)
-		
+
 def Async(fnc = None, callback = None):
 	if fnc == None:
 		def AddAsyncCallback(fnc):
@@ -119,18 +140,39 @@ def Async(fnc = None, callback = None):
 		return AddAsyncCallback
 	else:
 		return AsyncMethod(fnc, callback)
-		
+
 @Async
 def startServer():
 	global server;
-	#xbmcgui.Dialog().notification("Example", str(port), xbmcgui.NOTIFICATION_ERROR );
+	server_enable = addon.getSetting('server_enable');
+	port = int(addon.getSetting('server_port'));
 	try:
 		server = SocketServer.TCPServer(('', port), MyHandler);
 		server.serve_forever();
-		
+
 	except KeyboardInterrupt:
 		if server != None:
 			server.socket.close();
+
+def stopServer():
+	port = addon.getSetting('server_port');
+	try:
+		url = urllib.urlopen('http://localhost:' + str(port) + '/stop');
+		code = url.getcode();
+	except Exception as e:
+		return;
+	return;
+
+def serverOnline():
+	port = addon.getSetting('server_port');
+	try:
+		url = urllib.urlopen('http://localhost:' + str(port) + '/online');
+		code = url.getcode();
+		if code == 200:
+			return True;
+	except Exception as e:
+		return False;
+	return False;
 
 if __name__ == '__main__':
 	startServer();
