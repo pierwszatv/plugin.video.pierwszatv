@@ -6,6 +6,8 @@
 		<setting type="sep"/>
 		<setting label="Start Server" type="action" visible="eq(-3,true)" action="XBMC.RunPlugin(plugin://plugin.video.pierwszatv/?action=startServer)"/>
     <setting label="Stop Server" type="action" visible="eq(-4,true)" action="XBMC.RunPlugin(plugin://plugin.video.pierwszatv/?action=stopServer)"/>
+		<setting type="sep"/>
+		<setting id="startup_delay" type="number" default="0" label="Startup Delay" visible="eq(-6,true)"/>
 	</category>
 	<category label="Video Addon">
 		<setting id="pierwsza_tv_sort" type="enum" values="Default|Alphabetical" label="Sorting" default="0"/>

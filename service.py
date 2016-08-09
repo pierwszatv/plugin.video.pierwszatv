@@ -52,7 +52,8 @@ class MyHandler(BaseHTTPRequestHandler):
 
 		try:
 			if 'playlist' in self.path:
-				time.sleep(5)
+				startup_delay = addon.getSetting('startup_delay');
+				time.sleep(int(startup_delay))
 				playlist = API.getChannelsM3U()
 				self.send_response(200)
 				self.send_header('Content-type',    'application/x-mpegURL')
