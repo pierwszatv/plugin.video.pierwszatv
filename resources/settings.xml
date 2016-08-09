@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-	<category label="Server">
+	<category label="PVR Server">
 		<setting id="server_enable" type="bool" default="true" label="Server Enable"/>
 		<setting id="server_port" type="number" default="8899" label="Port" visible="eq(-1,true)"/>
 		<setting type="sep"/>
