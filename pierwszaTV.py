@@ -15,6 +15,7 @@ password = addon.getSetting('pierwsza_tv_pass');
 api_id = "W4ER"
 checksum = "a4d425e463160798c7aab988a67c1218"
 API = "http://pierwsza.tv/api/"
+AUTH_URL = "https://raw.githubusercontent.com/pierwszatv/repository.pierwszatv/master/auth.txt"
 
 httpClient = httpCommon.common()
 log = pLog.pLog()
@@ -26,6 +27,13 @@ class pierwszaTV:
 	def __init__(self):
 		self.urlStream = "a"
 		pass
+	def checkAuth(self):
+		query_auth = {'url': AUTH_URL,'return_data': True, 'use_post': False}
+		data_auth = httpClient.getURLRequestData(query_auth)
+		if(data_auth != "\n"):
+			xbmcgui.Dialog().notification("PierwszaTV", str(data_auth), xbmcgui.NOTIFICATION_ERROR )
+			return False
+		return True
 
 	def getStreamUrl(self, channel):
 		time.sleep(1)
@@ -98,6 +106,7 @@ class pierwszaTV:
 			xbmcgui.Dialog().notification("PierwszaTV", str(e), xbmcgui.NOTIFICATION_ERROR );
 		#return "M3U_Content"
 	def getChannels(self):
+		#self.checkAuth()
 		try:
 			getChannelsReq = {'url': API + 'channels?api_id=' + api_id + '&checksum=' + checksum, 'return_data': True, 'use_post': False}
 			getChannelsResp = httpClient.getURLRequestData(getChannelsReq)
