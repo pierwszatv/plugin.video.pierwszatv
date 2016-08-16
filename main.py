@@ -65,7 +65,7 @@ def router(paramstring):
 def startServer():
 	port = addon.getSetting('server_port');
 	if service.serverOnline():
-		xbmcgui.Dialog().notification(addonname, 'Server already started.\nPort: ' + str(port), xbmcgui.NOTIFICATION_INFO );
+		xbmcgui.Dialog().notification(addonname, 'Server already started. Port: ' + str(port), xbmcgui.NOTIFICATION_INFO );
 	else:
 		service.startServer();
 		time.sleep(5);
