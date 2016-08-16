@@ -70,7 +70,7 @@ def startServer():
 		service.startServer();
 		time.sleep(5);
 		if service.serverOnline():
-			xbmcgui.Dialog().notification(addonname, 'Server started.\nPort: ' + str(port), xbmcgui.NOTIFICATION_INFO );
+			xbmcgui.Dialog().notification(addonname, 'Server started. Port: ' + str(port), xbmcgui.NOTIFICATION_INFO );
 		else:
 			xbmcgui.Dialog().notification(addonname, 'Server not started. Wait one moment and try again. ', xbmcgui.NOTIFICATION_ERROR );
 
