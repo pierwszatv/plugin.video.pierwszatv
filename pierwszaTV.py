@@ -61,6 +61,10 @@ class pierwszaTV:
 				#tokenThread.setDaemon(True)
 				#tokenThread.start()
 				return streamUrl
+			elif streamCreateStatus == 'error':
+				streamCreateMessage = jsonStreamCreate['message']
+				#print streamCreateMessage
+				xbmcgui.Dialog().notification("PierwszaTV", streamCreateMessage, xbmcgui.NOTIFICATION_ERROR )
 			else:
 				xbmcgui.Dialog().notification("PierwszaTV", "Error creating channel stream", xbmcgui.NOTIFICATION_ERROR )
 		except Exception as e:
@@ -91,6 +95,10 @@ class pierwszaTV:
 					streamURl = source + '?token=' + token
 					#log.error('PierwszaTV Stream: ' + streamURl)
 					return streamURl
+			elif streamCreateStatus == 'error':
+				streamCreateMessage = jsonStreamCreate['message']
+				#print streamCreateMessage
+				xbmcgui.Dialog().notification("PierwszaTV", streamCreateMessage, xbmcgui.NOTIFICATION_ERROR )
 			else:
 				xbmcgui.Dialog().notification("PierwszaTV", "Status: Error", xbmcgui.NOTIFICATION_ERROR );
 		except Exception as e:
